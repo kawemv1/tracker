@@ -65,4 +65,4 @@ def filter_real_tasks(tasks):
     """Filter out non-task items from a list of tasks"""
     if not tasks:
         return []
-    return [task for task in tasks if is_real_task(task.get('task_name', ''))]
+    return [task for task in tasks if is_real_task(task['task_name'])]
