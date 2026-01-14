@@ -9,7 +9,8 @@ def main_menu_keyboard():
          InlineKeyboardButton("📝 Mark Done", callback_data='mark_done')],
         [InlineKeyboardButton("❌ Incomplete", callback_data='view_incomplete'),
          InlineKeyboardButton("📊 Stats", callback_data='stats')],
-        [InlineKeyboardButton("⚙️ Settings", callback_data='settings')]
+        [InlineKeyboardButton("⚙️ Settings", callback_data='settings')],
+        [InlineKeyboardButton("🕐 Debug: What time is it?", callback_data='debug_time')]
     ]
     return InlineKeyboardMarkup(keyboard)
 

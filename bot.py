@@ -501,6 +501,36 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             await query.answer("❌ Error toggling notifications.", show_alert=True)
     
+    elif query.data == 'debug_time':
+        from datetime import datetime
+        import pytz
+        
+        tz = pytz.timezone(config.TIMEZONE)
+        # Get UTC time first, then convert to target timezone
+        utc_now = datetime.now(pytz.utc)
+        local_now = utc_now.astimezone(tz)
+        
+        # Also get system time for comparison
+        system_now = datetime.now()
+        
+        text = f"🕐 **Debug: Current Time**\n\n"
+        text += f"📍 **Configured Timezone**: {config.TIMEZONE}\n"
+        text += f"🌍 **UTC Time**: {utc_now.strftime('%Y-%m-%d %H:%M:%S %Z')}\n"
+        text += f"📍 **Local Time ({tz})**: {local_now.strftime('%Y-%m-%d %H:%M:%S %Z')}\n"
+        text += f"⏰ **Time Display**: {local_now.strftime('%H:%M')}\n"
+        text += f"📅 **Date**: {local_now.strftime('%A, %B %d, %Y')}\n\n"
+        text += f"💻 **System Local Time**: {system_now.strftime('%Y-%m-%d %H:%M:%S')}\n"
+        text += f"🔧 **UTC Offset**: {local_now.utcoffset()}\n"
+        text += f"🌐 **Timezone Name**: {local_now.tzname()}\n\n"
+        text += f"📊 **Time Calculation Method**:\n"
+        text += f"`datetime.now(pytz.utc).astimezone(tz)`"
+        
+        await query.edit_message_text(
+            text=text,
+            parse_mode='Markdown',
+            reply_markup=keyboards.back_only_keyboard()
+        )
+    
     elif query.data.startswith('done_'):
         try:
             # Mark task as done
