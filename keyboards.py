@@ -16,6 +16,7 @@ def main_menu_keyboard():
 
 def what_now_submenu_keyboard():
     keyboard = [
+        [InlineKeyboardButton("⚡ What now?", callback_data='what_now')],
         [InlineKeyboardButton("🔜 What's next?", callback_data='whats_next')],
         [InlineKeyboardButton("❌ What did I miss?", callback_data='what_missed')],
         [InlineKeyboardButton("🔙 Back to Menu", callback_data='back_to_menu')]

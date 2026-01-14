@@ -107,7 +107,11 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     )
         
         current_task = await database.get_current_task(query.from_user.id, today_str, current_time_str)
+        next_task = await database.get_next_task(query.from_user.id, today_str, current_time_str)
         
+        text = ""
+        
+        # First, show what you should be doing RIGHT NOW
         if current_task:
             task_name = current_task['task_name']
             # Calculate how long the task should have been running
@@ -143,13 +147,9 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         text = f"🔥 You should be {task_name.replace('🚶 ', '').replace('🚕 ', '').replace('🚌 ', '')}{duration_text}."
                 else:
                     text = f"🔥 You should be doing: {task_name}{duration_text}"
-            else:
-                # Task hasn't started yet, treat as if no current task
-                current_task = None
         
-        if not current_task:
-            # Check next task
-            next_task = await database.get_next_task(query.from_user.id, today_str, current_time_str)
+        # If no current task, show next task
+        if not text:
             if next_task:
                 task_name = next_task['task_name']
                 is_commute = 'Commute' in task_name or '🚶' in task_name or '🚕' in task_name or '🚌' in task_name
@@ -159,6 +159,15 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     text = f"⏰ Next task: {task_name} at {next_task['scheduled_time']}"
             else:
                 text = "✅ No active tasks right now. Great job!"
+        
+        # Add next task info if we have a current task
+        if current_task and next_task:
+            next_task_name = next_task['task_name']
+            is_commute_next = 'Commute' in next_task_name or '🚶' in next_task_name or '🚕' in next_task_name or '🚌' in next_task_name
+            if is_commute_next:
+                text += f"\n\n⏰ Next: {next_task_name} at {next_task['scheduled_time']}"
+            else:
+                text += f"\n\n⏰ Next: {next_task_name} at {next_task['scheduled_time']}"
         
         await query.edit_message_text(
             text=text,
