@@ -40,8 +40,8 @@ def schedule_task_notifications(job_queue, chat_id, task_name, task_time_obj, ta
     # Parse as naive datetime - APScheduler will interpret it in the configured timezone
     task_dt_naive = datetime.strptime(task_datetime_str, "%Y-%m-%d %H:%M")
     
-    # For comparisons, use timezone-aware datetime
-    task_dt_aware = tz.localize(task_dt_naive)
+    # For comparisons, use timezone-aware datetime - use UTC method for consistency
+    task_dt_aware = pytz.utc.localize(task_dt_naive.replace(tzinfo=None)).astimezone(tz)
     # Get UTC time first, then convert to target timezone to avoid system timezone issues
     now = datetime.now(pytz.utc).astimezone(tz)
     

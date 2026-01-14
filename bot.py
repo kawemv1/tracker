@@ -111,8 +111,10 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             task_name = current_task['task_name']
             # Calculate how long the task should have been running
             task_time_str = current_task['scheduled_time']
-            task_datetime = datetime.strptime(f"{today_str} {task_time_str}", "%Y-%m-%d %H:%M")
-            task_datetime = tz.localize(task_datetime)
+            # Parse as naive, then convert to timezone-aware using UTC method for consistency
+            task_datetime_naive = datetime.strptime(f"{today_str} {task_time_str}", "%Y-%m-%d %H:%M")
+            # Use the same method as 'now' - convert via UTC to ensure consistency
+            task_datetime = pytz.utc.localize(task_datetime_naive.replace(tzinfo=None)).astimezone(tz)
             duration = now - task_datetime
             duration_seconds = int(duration.total_seconds())
             
@@ -202,8 +204,9 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 
                 # Calculate time until next task
                 from datetime import timedelta
-                task_time = datetime.strptime(f"{today_str} {next_task['scheduled_time']}", "%Y-%m-%d %H:%M")
-                task_time = tz.localize(task_time)
+                task_time_naive = datetime.strptime(f"{today_str} {next_task['scheduled_time']}", "%Y-%m-%d %H:%M")
+                # Use the same method as 'now' - convert via UTC to ensure consistency
+                task_time = pytz.utc.localize(task_time_naive.replace(tzinfo=None)).astimezone(tz)
                 time_diff = task_time - now
                 
                 if time_diff.total_seconds() > 0:
