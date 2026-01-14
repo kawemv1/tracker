@@ -34,7 +34,8 @@ async def send_reminder(context: ContextTypes.DEFAULT_TYPE):
 def schedule_task_notifications(job_queue, chat_id, task_name, task_time_obj, task_date_str):
     """Schedules 1h, 30m, and start time notifications"""
     # Combine date and time
-    tz = pytz.timezone(config.TIMEZONE)
+    # TIMEZONE is now a timezone object, not a string
+    tz = config.TIMEZONE
     
     task_datetime_str = f"{task_date_str} {task_time_obj.strftime('%H:%M')}"
     # Parse as naive datetime - APScheduler will interpret it in the configured timezone
@@ -76,7 +77,8 @@ def schedule_task_notifications(job_queue, chat_id, task_name, task_time_obj, ta
 async def daily_maintenance(context: ContextTypes.DEFAULT_TYPE):
     """Runs every morning to generate tasks from recurring templates"""
     users = await database.get_all_users()
-    tz = pytz.timezone(config.TIMEZONE)
+    # TIMEZONE is now a timezone object, not a string
+    tz = config.TIMEZONE
     # Get UTC time first, then convert to target timezone to avoid system timezone issues
     today = datetime.now(pytz.utc).astimezone(tz)
     
@@ -99,7 +101,8 @@ async def daily_maintenance(context: ContextTypes.DEFAULT_TYPE):
 async def regenerate_today(update, context):
     """Manual trigger via /sync command"""
     user_id = update.effective_user.id
-    tz = pytz.timezone(config.TIMEZONE)
+    # TIMEZONE is now a timezone object, not a string
+    tz = config.TIMEZONE
     # Get UTC time first, then convert to target timezone to avoid system timezone issues
     now = datetime.now(pytz.utc).astimezone(tz)
     

@@ -48,14 +48,14 @@ async def show_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Show current time in configured timezone"""
     from datetime import datetime
     import pytz
-    # Force Asia/Almaty timezone
-    tz = pytz.timezone("Asia/Almaty")
+    # TIMEZONE is now a timezone object, not a string
+    tz = config.TIMEZONE
     # Get UTC time first, then convert to target timezone to avoid system timezone issues
     utc_now = datetime.now(pytz.utc)
     now = utc_now.astimezone(tz)
     
     text = f"🕐 **Current Time**\n\n"
-    text += f"📍 **Asia/Almaty (UTC+5)**: {now.strftime('%Y-%m-%d %H:%M:%S %Z')}\n"
+    text += f"📍 **Local Time (UTC+5)**: {now.strftime('%Y-%m-%d %H:%M:%S %Z')}\n"
     text += f"🌍 **UTC**: {utc_now.strftime('%Y-%m-%d %H:%M:%S %Z')}\n"
     text += f"⏰ **Time Now**: {now.strftime('%H:%M')}\n"
     text += f"📅 **Date**: {now.strftime('%A, %B %d, %Y')}"
@@ -87,7 +87,8 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if query.data == 'what_now':
         from datetime import datetime
         import pytz
-        tz = pytz.timezone(config.TIMEZONE)
+        # TIMEZONE is now a timezone object, not a string
+        tz = config.TIMEZONE
         # Get UTC time first, then convert to target timezone to avoid system timezone issues
         now = datetime.now(pytz.utc).astimezone(tz)
         current_time_str = now.strftime("%H:%M")
@@ -169,7 +170,8 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         try:
             from datetime import datetime
             import pytz
-            tz = pytz.timezone(config.TIMEZONE)
+            # TIMEZONE is now a timezone object, not a string
+            tz = config.TIMEZONE
             # Get UTC time first, then convert to target timezone to avoid system timezone issues
             now = datetime.now(pytz.utc).astimezone(tz)
             current_time_str = now.strftime("%H:%M")
@@ -235,7 +237,8 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         try:
             from datetime import datetime
             import pytz
-            tz = pytz.timezone(config.TIMEZONE)
+            # TIMEZONE is now a timezone object, not a string
+            tz = config.TIMEZONE
             # Get UTC time first, then convert to target timezone to avoid system timezone issues
             now = datetime.now(pytz.utc).astimezone(tz)
             current_time_str = now.strftime("%H:%M")
@@ -272,7 +275,8 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 # Try to generate tasks from recurring schedule
                 from datetime import datetime
                 import pytz
-                tz = pytz.timezone(config.TIMEZONE)
+                # TIMEZONE is now a timezone object, not a string
+                tz = config.TIMEZONE
                 # Get UTC time first, then convert to target timezone to avoid system timezone issues
                 now = datetime.now(pytz.utc).astimezone(tz)
                 count = await database.generate_daily_tasks_from_recurring(query.from_user.id, now)
@@ -379,7 +383,8 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 # Generate preview from recurring_tasks
                 from datetime import datetime, timedelta
                 import pytz
-                tz = pytz.timezone(config.TIMEZONE)
+                # TIMEZONE is now a timezone object, not a string
+                tz = config.TIMEZONE
                 # Get UTC time first, then convert to target timezone to avoid system timezone issues
                 today = datetime.now(pytz.utc).astimezone(tz)
                 tomorrow = today + timedelta(days=1)
@@ -426,7 +431,8 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         try:
             from datetime import datetime
             import pytz
-            tz = pytz.timezone(config.TIMEZONE)
+            # TIMEZONE is now a timezone object, not a string
+            tz = config.TIMEZONE
             # Get UTC time first, then convert to target timezone to avoid system timezone issues
             now = datetime.now(pytz.utc).astimezone(tz)
             current_time_str = now.strftime("%H:%M")
@@ -505,7 +511,8 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         from datetime import datetime
         import pytz
         
-        tz = pytz.timezone(config.TIMEZONE)
+        # TIMEZONE is now a timezone object, not a string
+        tz = config.TIMEZONE
         # Get UTC time first, then convert to target timezone
         utc_now = datetime.now(pytz.utc)
         local_now = utc_now.astimezone(tz)
@@ -668,22 +675,22 @@ def main():
     asyncio.set_event_loop(loop)
     loop.run_until_complete(database.init_db())
 
-    # Set timezone for all operations - Force Asia/Almaty (UTC+5)
-    astana_tz = pytz.timezone("Asia/Almaty")
-    defaults = Defaults(tzinfo=astana_tz)
+    # Set timezone for all operations - Use fixed UTC+5 timezone
+    # TIMEZONE is now a timezone object (FixedOffset UTC+5)
+    defaults = Defaults(tzinfo=config.TIMEZONE)
     application = ApplicationBuilder().token(config.BOT_TOKEN).defaults(defaults).build()
     
     # Explicitly configure scheduler timezone
-    application.job_queue.scheduler.configure(timezone=astana_tz)
+    application.job_queue.scheduler.configure(timezone=config.TIMEZONE)
     
     # Verify timezone is set correctly
     from datetime import datetime
     test_utc = datetime.now(pytz.utc)
-    test_local = test_utc.astimezone(astana_tz)
-    print(f"✅ Timezone configured: {astana_tz}")
-    print(f"✅ Config TIMEZONE: {config.TIMEZONE}")
+    test_local = test_utc.astimezone(config.TIMEZONE)
+    print(f"✅ Timezone configured: {config.TIMEZONE} (UTC+5)")
     print(f"✅ Current UTC time: {test_utc.strftime('%H:%M:%S')}")
     print(f"✅ Current local time: {test_local.strftime('%H:%M:%S')}")
+    print(f"✅ UTC offset: {test_local.utcoffset()}")
 
     # Conversation Handler
     add_task_conv = ConversationHandler(

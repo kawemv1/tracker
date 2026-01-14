@@ -4,7 +4,8 @@ import config
 
 def get_user_now():
     """Get current time in configured timezone"""
-    tz = pytz.timezone(config.TIMEZONE)
+    # TIMEZONE is now a timezone object, not a string
+    tz = config.TIMEZONE
     # Get UTC time first, then convert to target timezone to avoid system timezone issues
     utc_now = datetime.now(pytz.utc)
     return utc_now.astimezone(tz)

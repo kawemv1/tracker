@@ -324,7 +324,8 @@ async def get_user_stats(user_id, date_str):
         from datetime import datetime, timedelta
         import pytz
         from config import TIMEZONE
-        tz = pytz.timezone(TIMEZONE)
+        # TIMEZONE is now a timezone object, not a string
+        tz = TIMEZONE
         # Get UTC time first, then convert to target timezone to avoid system timezone issues
         today = datetime.now(pytz.utc).astimezone(tz).date()
         
