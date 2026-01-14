@@ -429,10 +429,6 @@ async def get_current_task(user_id, date_str, current_time_str):
             # If task time is after current time, it hasn't started yet - return None
             if task_time_str > current_time_str:
                 return None
-            # Filter out non-tasks using utils
-            import utils
-            if not utils.is_real_task(result['task_name']):
-                return None
         return result
 
 async def get_next_task(user_id, date_str, current_time_str):
