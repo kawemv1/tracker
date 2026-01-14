@@ -116,10 +116,9 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             duration = now - task_datetime
             duration_seconds = int(duration.total_seconds())
             
-            # Format duration
-            if duration_seconds < 0:
-                duration_text = ""
-            else:
+            # Only show task if it has actually started (duration >= 0)
+            if duration_seconds >= 0:
+                # Format duration
                 hours = duration_seconds // 3600
                 minutes = (duration_seconds % 3600) // 60
                 
@@ -130,18 +129,22 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         duration_text = f" for {hours} hour{'s' if hours > 1 else ''}"
                 else:
                     duration_text = f" for {minutes} minute{'s' if minutes > 1 else ''}"
-            
-            # Check if it's a commute task
-            is_commute = 'Commute' in task_name or '🚶' in task_name or '🚕' in task_name or '🚌' in task_name
-            
-            if is_commute:
-                if 'Home' in task_name:
-                    text = f"🔥 You should be {task_name.replace('🚶 ', '').replace('🚕 ', '').replace('🚌 ', '')}{duration_text}. Stay safe!"
+                
+                # Check if it's a commute task
+                is_commute = 'Commute' in task_name or '🚶' in task_name or '🚕' in task_name or '🚌' in task_name
+                
+                if is_commute:
+                    if 'Home' in task_name:
+                        text = f"🔥 You should be {task_name.replace('🚶 ', '').replace('🚕 ', '').replace('🚌 ', '')}{duration_text}. Stay safe!"
+                    else:
+                        text = f"🔥 You should be {task_name.replace('🚶 ', '').replace('🚕 ', '').replace('🚌 ', '')}{duration_text}."
                 else:
-                    text = f"🔥 You should be {task_name.replace('🚶 ', '').replace('🚕 ', '').replace('🚌 ', '')}{duration_text}."
+                    text = f"🔥 You should be doing: {task_name}{duration_text}"
             else:
-                text = f"🔥 You should be doing: {task_name}{duration_text}"
-        else:
+                # Task hasn't started yet, treat as if no current task
+                current_task = None
+        
+        if not current_task:
             # Check next task
             next_task = await database.get_next_task(query.from_user.id, today_str, current_time_str)
             if next_task:

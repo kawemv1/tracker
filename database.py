@@ -405,9 +405,10 @@ async def get_current_task(user_id, date_str, current_time_str):
         db.row_factory = aiosqlite.Row
         from datetime import datetime, timedelta
         current_dt = datetime.strptime(f"{date_str} {current_time_str}", "%Y-%m-%d %H:%M")
-        # Look for tasks that started within the last 2 hours
+        # Look for tasks that started within the last 2 hours and haven't passed yet
         window_start = (current_dt - timedelta(hours=2)).strftime("%H:%M")
         
+        # Get tasks that started before or at current time, but not future tasks
         cursor = await db.execute(
             """SELECT * FROM tasks 
                WHERE user_id = ? AND date = ? 
@@ -418,7 +419,15 @@ async def get_current_task(user_id, date_str, current_time_str):
                LIMIT 1""",
             (user_id, date_str, window_start, current_time_str)
         )
-        return await cursor.fetchone()
+        result = await cursor.fetchone()
+        
+        # Double-check: make sure the task has actually started (not a future task)
+        if result:
+            task_time_str = result['scheduled_time']
+            # If task time is after current time, it hasn't started yet - return None
+            if task_time_str > current_time_str:
+                return None
+        return result
 
 async def get_next_task(user_id, date_str, current_time_str):
     """Get the next upcoming task"""
