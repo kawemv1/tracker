@@ -410,6 +410,7 @@ async def get_current_task(user_id, date_str, current_time_str):
         window_start = (current_dt - timedelta(hours=2)).strftime("%H:%M")
         
         # Get tasks that started before or at current time, but not future tasks
+        # Also filter out non-tasks (commutes, lunch, etc.) - we want real tasks
         cursor = await db.execute(
             """SELECT * FROM tasks 
                WHERE user_id = ? AND date = ? 
@@ -427,6 +428,10 @@ async def get_current_task(user_id, date_str, current_time_str):
             task_time_str = result['scheduled_time']
             # If task time is after current time, it hasn't started yet - return None
             if task_time_str > current_time_str:
+                return None
+            # Filter out non-tasks using utils
+            import utils
+            if not utils.is_real_task(result['task_name']):
                 return None
         return result
 
