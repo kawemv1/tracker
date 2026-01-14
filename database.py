@@ -325,7 +325,8 @@ async def get_user_stats(user_id, date_str):
         import pytz
         from config import TIMEZONE
         tz = pytz.timezone(TIMEZONE)
-        today = datetime.now(tz).date()
+        # Get UTC time first, then convert to target timezone to avoid system timezone issues
+        today = datetime.now(pytz.utc).astimezone(tz).date()
         
         # For streak calculation, we need to check each day's real tasks
         for day in all_days:
@@ -651,7 +652,8 @@ async def get_goals(user_id, active_only=True):
             import pytz
             from config import TIMEZONE
             tz = pytz.timezone(TIMEZONE)
-            today = datetime.now(tz).strftime("%Y-%m-%d")
+            # Get UTC time first, then convert to target timezone to avoid system timezone issues
+            today = datetime.now(pytz.utc).astimezone(tz).strftime("%Y-%m-%d")
             cursor = await db.execute(
                 "SELECT * FROM goals WHERE user_id = ? AND (target_date >= ? OR target_date IS NULL) ORDER BY target_date",
                 (user_id, today)

@@ -50,8 +50,9 @@ async def show_time(update: Update, context: ContextTypes.DEFAULT_TYPE):
     import pytz
     # Force Asia/Almaty timezone
     tz = pytz.timezone("Asia/Almaty")
-    now = datetime.now(tz)
+    # Get UTC time first, then convert to target timezone to avoid system timezone issues
     utc_now = datetime.now(pytz.utc)
+    now = utc_now.astimezone(tz)
     
     text = f"🕐 **Current Time**\n\n"
     text += f"📍 **Asia/Almaty (UTC+5)**: {now.strftime('%Y-%m-%d %H:%M:%S %Z')}\n"
@@ -87,7 +88,8 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         from datetime import datetime
         import pytz
         tz = pytz.timezone(config.TIMEZONE)
-        now = datetime.now(tz)
+        # Get UTC time first, then convert to target timezone to avoid system timezone issues
+        now = datetime.now(pytz.utc).astimezone(tz)
         current_time_str = now.strftime("%H:%M")
         
         # Auto-generate tasks if none exist
@@ -163,7 +165,8 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             from datetime import datetime
             import pytz
             tz = pytz.timezone(config.TIMEZONE)
-            now = datetime.now(tz)
+            # Get UTC time first, then convert to target timezone to avoid system timezone issues
+            now = datetime.now(pytz.utc).astimezone(tz)
             current_time_str = now.strftime("%H:%M")
             
             # Auto-generate tasks if none exist
@@ -227,7 +230,8 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             from datetime import datetime
             import pytz
             tz = pytz.timezone(config.TIMEZONE)
-            now = datetime.now(tz)
+            # Get UTC time first, then convert to target timezone to avoid system timezone issues
+            now = datetime.now(pytz.utc).astimezone(tz)
             current_time_str = now.strftime("%H:%M")
             
             incomplete = await database.get_incomplete_tasks(query.from_user.id, today_str, current_time_str)
@@ -263,7 +267,8 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 from datetime import datetime
                 import pytz
                 tz = pytz.timezone(config.TIMEZONE)
-                now = datetime.now(tz)
+                # Get UTC time first, then convert to target timezone to avoid system timezone issues
+                now = datetime.now(pytz.utc).astimezone(tz)
                 count = await database.generate_daily_tasks_from_recurring(query.from_user.id, now)
                 
                 if count > 0:
@@ -369,7 +374,8 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 from datetime import datetime, timedelta
                 import pytz
                 tz = pytz.timezone(config.TIMEZONE)
-                today = datetime.now(tz)
+                # Get UTC time first, then convert to target timezone to avoid system timezone issues
+                today = datetime.now(pytz.utc).astimezone(tz)
                 tomorrow = today + timedelta(days=1)
                 day_name = tomorrow.strftime("%A").upper()  # MONDAY, TUESDAY...
                 recurring = await database.get_recurring_tasks_for_day(query.from_user.id, day_name)
@@ -415,7 +421,8 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             from datetime import datetime
             import pytz
             tz = pytz.timezone(config.TIMEZONE)
-            now = datetime.now(tz)
+            # Get UTC time first, then convert to target timezone to avoid system timezone issues
+            now = datetime.now(pytz.utc).astimezone(tz)
             current_time_str = now.strftime("%H:%M")
             
             incomplete = await database.get_incomplete_tasks(query.from_user.id, today_str, current_time_str)

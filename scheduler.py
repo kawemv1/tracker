@@ -42,7 +42,8 @@ def schedule_task_notifications(job_queue, chat_id, task_name, task_time_obj, ta
     
     # For comparisons, use timezone-aware datetime
     task_dt_aware = tz.localize(task_dt_naive)
-    now = datetime.now(tz)
+    # Get UTC time first, then convert to target timezone to avoid system timezone issues
+    now = datetime.now(pytz.utc).astimezone(tz)
     
     # Schedule Start Time - pass naive datetime to APScheduler
     if task_dt_aware > now:
@@ -76,7 +77,8 @@ async def daily_maintenance(context: ContextTypes.DEFAULT_TYPE):
     """Runs every morning to generate tasks from recurring templates"""
     users = await database.get_all_users()
     tz = pytz.timezone(config.TIMEZONE)
-    today = datetime.now(tz)
+    # Get UTC time first, then convert to target timezone to avoid system timezone issues
+    today = datetime.now(pytz.utc).astimezone(tz)
     
     for user_id in users:
         count = await database.generate_daily_tasks_from_recurring(user_id, today)
@@ -98,7 +100,8 @@ async def regenerate_today(update, context):
     """Manual trigger via /sync command"""
     user_id = update.effective_user.id
     tz = pytz.timezone(config.TIMEZONE)
-    now = datetime.now(tz)
+    # Get UTC time first, then convert to target timezone to avoid system timezone issues
+    now = datetime.now(pytz.utc).astimezone(tz)
     
     count = await database.generate_daily_tasks_from_recurring(user_id, now)
     

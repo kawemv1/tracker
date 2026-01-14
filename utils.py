@@ -5,7 +5,9 @@ import config
 def get_user_now():
     """Get current time in configured timezone"""
     tz = pytz.timezone(config.TIMEZONE)
-    return datetime.now(tz)
+    # Get UTC time first, then convert to target timezone to avoid system timezone issues
+    utc_now = datetime.now(pytz.utc)
+    return utc_now.astimezone(tz)
 
 def get_today_str():
     return get_user_now().strftime("%Y-%m-%d")
