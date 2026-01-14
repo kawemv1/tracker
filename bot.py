@@ -641,8 +641,13 @@ def main():
     application.job_queue.scheduler.configure(timezone=astana_tz)
     
     # Verify timezone is set correctly
+    from datetime import datetime
+    test_utc = datetime.now(pytz.utc)
+    test_local = test_utc.astimezone(astana_tz)
     print(f"✅ Timezone configured: {astana_tz}")
     print(f"✅ Config TIMEZONE: {config.TIMEZONE}")
+    print(f"✅ Current UTC time: {test_utc.strftime('%H:%M:%S')}")
+    print(f"✅ Current local time: {test_local.strftime('%H:%M:%S')}")
 
     # Conversation Handler
     add_task_conv = ConversationHandler(
