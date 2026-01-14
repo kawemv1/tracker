@@ -1,5 +1,0 @@
-python-telegram-bot[job-queue]==20.*
-aiosqlite==0.19.*
-python-dotenv==1.0.*
-nest-asyncio==1.5.*
-pytz==2023.*
