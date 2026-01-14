@@ -109,6 +109,17 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # "What now?" should ONLY show what you should be doing RIGHT NOW
         current_task = await database.get_current_task(query.from_user.id, today_str, current_time_str)
         
+        # Debug: If no current task, check all tasks to see what's available
+        if not current_task:
+            all_tasks = await database.get_tasks(query.from_user.id, today_str)
+            # Filter to see what tasks exist around this time
+            import utils
+            real_tasks = utils.filter_real_tasks(all_tasks)
+            logger.info(f"Debug - Current time: {current_time_str}, Found {len(real_tasks)} real tasks")
+            for t in real_tasks:
+                if t['scheduled_time'] <= current_time_str and t['status'] != 'done':
+                    logger.info(f"Debug - Task {t['task_name']} at {t['scheduled_time']} status: {t['status']}")
+        
         if current_task:
             task_name = current_task['task_name']
             # Calculate how long the task should have been running
