@@ -511,15 +511,19 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Also get system time for comparison
         system_now = datetime.now()
         
+        # Format timezone display nicely
+        offset_hours = int(local_now.utcoffset().total_seconds() / 3600)
+        timezone_display = f"UTC+{offset_hours}" if offset_hours >= 0 else f"UTC{offset_hours}"
+        
         text = f"🕐 **Debug: Current Time**\n\n"
-        text += f"📍 **Configured Timezone**: {config.TIMEZONE}\n"
+        text += f"📍 **Configured Timezone**: {timezone_display} (Fixed Offset)\n"
         text += f"🌍 **UTC Time**: {utc_now.strftime('%Y-%m-%d %H:%M:%S %Z')}\n"
-        text += f"📍 **Local Time ({tz})**: {local_now.strftime('%Y-%m-%d %H:%M:%S %Z')}\n"
+        text += f"📍 **Local Time ({timezone_display})**: {local_now.strftime('%Y-%m-%d %H:%M:%S')}\n"
         text += f"⏰ **Time Display**: {local_now.strftime('%H:%M')}\n"
         text += f"📅 **Date**: {local_now.strftime('%A, %B %d, %Y')}\n\n"
         text += f"💻 **System Local Time**: {system_now.strftime('%Y-%m-%d %H:%M:%S')}\n"
         text += f"🔧 **UTC Offset**: {local_now.utcoffset()}\n"
-        text += f"🌐 **Timezone Name**: {local_now.tzname()}\n\n"
+        text += f"🌐 **Timezone Type**: Fixed Offset (UTC+5)\n\n"
         text += f"📊 **Time Calculation Method**:\n"
         text += f"`datetime.now(pytz.utc).astimezone(tz)`"
         
