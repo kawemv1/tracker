@@ -34,40 +34,41 @@ async def send_reminder(context: ContextTypes.DEFAULT_TYPE):
 def schedule_task_notifications(job_queue, chat_id, task_name, task_time_obj, task_date_str):
     """Schedules 1h, 30m, and start time notifications"""
     # Combine date and time
-    # We must attach timezone info to make it aware
     tz = pytz.timezone(config.TIMEZONE)
     
     task_datetime_str = f"{task_date_str} {task_time_obj.strftime('%H:%M')}"
-    # Parse as naive first
+    # Parse as naive datetime - APScheduler will interpret it in the configured timezone
     task_dt_naive = datetime.strptime(task_datetime_str, "%Y-%m-%d %H:%M")
-    # Localize to Astana time
-    task_dt = tz.localize(task_dt_naive)
     
+    # For comparisons, use timezone-aware datetime
+    task_dt_aware = tz.localize(task_dt_naive)
     now = datetime.now(tz)
     
-    # Schedule Start Time
-    if task_dt > now:
+    # Schedule Start Time - pass naive datetime to APScheduler
+    if task_dt_aware > now:
         job_queue.run_once(
             send_reminder, 
-            task_dt, 
+            task_dt_naive, 
             data={'chat_id': chat_id, 'task_name': task_name, 'type': 'start'}
         )
         
     # Schedule 1h before
-    remind_1h = task_dt - timedelta(hours=1)
-    if remind_1h > now:
+    remind_1h_aware = task_dt_aware - timedelta(hours=1)
+    if remind_1h_aware > now:
+        remind_1h_naive = remind_1h_aware.replace(tzinfo=None)
         job_queue.run_once(
             send_reminder, 
-            remind_1h, 
+            remind_1h_naive, 
             data={'chat_id': chat_id, 'task_name': task_name, 'type': '1h'}
         )
     
     # Schedule 30m before (for all tasks including commutes)
-    remind_30m = task_dt - timedelta(minutes=30)
-    if remind_30m > now:
+    remind_30m_aware = task_dt_aware - timedelta(minutes=30)
+    if remind_30m_aware > now:
+        remind_30m_naive = remind_30m_aware.replace(tzinfo=None)
         job_queue.run_once(
             send_reminder, 
-            remind_30m, 
+            remind_30m_naive, 
             data={'chat_id': chat_id, 'task_name': task_name, 'type': '30m'}
         )
 
